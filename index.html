@@ -1,0 +1,334 @@
+
+<!-- saved from url=(0068)file:///D:/softwares/_PROJECTS/miniprojects/sudokuSolver/solver.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<link rel="stylesheet" href="bootstrap.min.css">
+<style>
+.popup
+{
+	//display: none;
+	border: 1px solid black;
+	border-radius: 10px;
+}
+.cell
+{
+border-radius:20px;
+}
+.boxes
+{
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+</style>
+<script src="jquery.min.js"></script>
+<script>
+'use strict';
+function validate(state)
+{
+//validate/ check if its possible to solve
+}
+
+function solved(state)
+{
+//check if sudoku is solved
+	//rowwise
+	let sumr=[0,0,0,0,0,0,0,0,0];
+	let sumc=[0,0,0,0,0,0,0,0,0];
+	let sumb=[0,0,0,0,0,0,0,0,0];
+	for(let i=0;i<9;i++)
+	{
+			for(let j=0;j<9;j++)
+			{
+				sumr[i]+=state[i][j];
+				sumc[j]+=state[i][j];
+				let pos=((i*9+j)+((Math.floor(j/3)-(i%3))*6));
+				sumb[Math.floor(pos/9)]+=state[i][j];
+			}
+	}
+	if((sumr.toString()=="45,45,45,45,45,45,45,45,45")&&(sumc.toString()=="45,45,45,45,45,45,45,45,45")&&(sumb.toString()=="45,45,45,45,45,45,45,45,45"))
+	{
+		return true;
+	}
+	else
+		return false;
+}
+function input()
+{
+//convert sudoku to 2d array
+	let cur=document.getElementsByClassName("cell");
+	let arr=set();
+	for(let i=0;i<9;i++)
+	{
+		for(let j=0;j<9;j++)
+		{
+			let pos=((i*9+j)+((Math.floor(j/3)-(i%3))*6));
+			arr[i][j]=Number(cur[pos].value);
+		}
+	}
+	return arr;
+}
+
+function print(arr)
+{
+//publish the soln from 2d array
+	let cur=document.getElementsByClassName("cell");
+	for(let i=0;i<9;i++)
+	{
+		for(let j=0;j<9;j++)
+		{
+			let pos=((i*9+j)+((Math.floor(j/3)-(i%3))*6));
+			cur[pos].value=arr[i][j];
+		}
+	}
+}
+
+function set()
+{
+	return [[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0]];
+}
+function copy(state)
+{
+	let ne=set();
+	for(let i=0;i<9;i++)
+	{
+		for(let j=0;j<9;j++)
+		{
+			ne[i][j]=state[i][j];
+		}
+	}
+	return ne;
+}
+function possibli(state,x,y)
+{
+//returns an array with 0 for indexes tat can be put at this position
+//rowwise
+	let possibles=[1,0,0,0,0,0,0,0,0,0];
+	for(let i=0;i<9;i++)
+	{
+		possibles[state[i][y]]=1;
+		possibles[state[x][i]]=1;
+		
+	}
+	let startx=Math.floor(x/3)*3;
+	let starty=Math.floor(y/3)*3;
+	for(let i=startx;i<startx+3;i++)
+	{
+		for(let j=starty;j<starty+3;j++)
+		{
+			possibles[state[i][j]]=1;
+		}
+	}
+	return possibles;
+}
+function nextcoord(x,y)
+{
+	let currx=(x+1);
+	let curry=y+Math.floor(currx/9);
+	currx%=9;
+	return [currx,curry];
+}
+function solve(state,x,y)
+{
+	//generate children of state
+	let curr=[]
+	if(solved(state)==true)
+		return state;
+	while(state[x][y]!=0)
+	{
+		curr=nextcoord(x,y);
+		x=curr[0];
+		y=curr[1];
+	}
+	curr=nextcoord(x,y);
+	let currx=curr[0];
+	let curry=curr[1];
+	let possibs=possibli(state,x,y);
+	for(let i=0;i<10;i++)
+	{
+		if(possibs[i]==0)
+		{
+			let cop=copy(state);
+			cop[x][y]=i;
+			if(curry<9)
+				cop=solve(cop,currx,curry);
+			if(solved(cop)==true)
+				return cop;
+		}
+	}
+	return state
+}
+</script>
+</head>
+<body>
+	<div class="main container">
+		<div class="boxes row">
+			<div class="box container-fluid">
+				<div class="row">
+					<input type="number" class="cell col btn btn-danger" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-success" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-primary" min=0 max=9 value='0'/>
+				</div>
+				<div class="row">
+					<input type="number" class="cell col btn btn-warning" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-info" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-danger" min=0 max=9 value='0'/>
+				</div>
+				<div class="row">
+					<input type="number" class="cell col btn btn-success" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-primary" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-warning" min=0 max=9 value='0'/>
+				</div>
+			</div>
+			<div class="box container-fluid">
+				<div class="row">
+					<input type="number" class="cell col btn btn-info" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-danger" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-success" min=0 max=9 value='0'/>
+				</div>
+				<div class="row">
+					<input type="number" class="cell col btn btn-primary" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-warning" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-info" min=0 max=9 value='0'/>
+				</div>
+				<div class="row">
+					<input type="number" class="cell col btn btn-danger" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-success" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-primary" min=0 max=9 value='0'/>
+				</div>
+			</div>
+			<div class="box container-fluid">
+				<div class="row">
+					<input type="number" class="cell col btn btn-warning" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-info" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-danger" min=0 max=9 value='0'/>
+				</div>
+				<div class="row">
+					<input type="number" class="cell col btn btn-success" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-primary" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-warning" min=0 max=9 value='0'/>
+				</div>
+				<div class="row">
+					<input type="number" class="cell col btn btn-info" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-danger" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-success" min=0 max=9 value='0'/>
+				</div>
+			</div>
+		</div>
+		<div class="boxes row">
+			<div class="box container-fluid">
+				<div class="row">
+					<input type="number" class="cell col btn btn-primary" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-warning" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-info" min=0 max=9 value='0'/>
+				</div>
+				<div class="row">
+					<input type="number" class="cell col btn btn-danger" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-success" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-primary" min=0 max=9 value='0'/>
+				</div>
+				<div class="row">
+					<input type="number" class="cell col btn btn-warning" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-info" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-danger" min=0 max=9 value='0'/>
+				</div>
+			</div>
+			<div class="box container-fluid">
+				<div class="row">
+					<input type="number" class="cell col btn btn-success" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-primary" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-warning" min=0 max=9 value='0'/>
+				</div>
+				<div class="row">
+					<input type="number" class="cell col btn btn-info" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-danger" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-success" min=0 max=9 value='0'/>
+				</div>
+				<div class="row">
+					<input type="number" class="cell col btn btn-primary" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-warning" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-info" min=0 max=9 value='0'/>
+				</div>
+			</div>
+			<div class="box container-fluid">
+				<div class="row">
+					<input type="number" class="cell col btn btn-danger" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-success" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-primary" min=0 max=9 value='0'/>
+				</div>
+				<div class="row">
+					<input type="number" class="cell col btn btn-warning" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-info" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-danger" min=0 max=9 value='0'/>
+				</div>
+				<div class="row">
+					<input type="number" class="cell col btn btn-success" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-primary" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-warning" min=0 max=9 value='0'/>
+				</div>
+			</div>
+		</div>
+		<div class="boxes row">
+			<div class="box container-fluid">
+				<div class="row">
+					<input type="number" class="cell col btn btn-info" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-danger" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-success" min=0 max=9 value='0'/>
+				</div>
+				<div class="row">
+					<input type="number" class="cell col btn btn-primary" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-warning" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-info" min=0 max=9 value='0'/>
+				</div>
+				<div class="row">
+					<input type="number" class="cell col btn btn-danger" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-success" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-primary" min=0 max=9 value='0'/>
+				</div>
+			</div>
+			<div class="box container-fluid">
+				<div class="row">
+					<input type="number" class="cell col btn btn-warning" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-info" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-danger" min=0 max=9 value='0'/>
+				</div>
+				<div class="row">
+					<input type="number" class="cell col btn btn-success" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-primary" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-warning" min=0 max=9 value='0'/>
+				</div>
+				<div class="row">
+					<input type="number" class="cell col btn btn-info" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-danger" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-success" min=0 max=9 value='0'/>
+				</div>
+			</div>
+			<div class="box container-fluid">
+				<div class="row">
+					<input type="number" class="cell col btn btn-primary" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-warning" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-info" min=0 max=9 value='0'/>
+				</div>
+				<div class="row">
+					<input type="number" class="cell col btn btn-danger" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-success" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-primary" min=0 max=9 value='0'/>
+				</div>
+				<div class="row">
+					<input type="number" class="cell col btn btn-warning" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-info" min=0 max=9 value='0'/>
+					<input type="number" class="cell col btn btn-danger" min=0 max=9 value='0'/>
+				</div>
+			</div>
+		</div>
+		<button class="btn" id="submit">submit</button>
+	</div>
+	<script>
+	$(document).ready(function()
+	{
+		$("#submit").click(function(){
+		//todo validate the sudoku puzzle
+			print(solve(input(),0,0));
+		});
+	});
+	</script>
+
+</body></html>
