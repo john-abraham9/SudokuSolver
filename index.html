@@ -367,6 +367,7 @@ function solve(state,x,y)
 	{
 		$("#submit").click(function(){
 		//todo validate the sudoku puzzle
+			dbaccess(5);
 			print(solve(input(),0,0));
 		});
 	});
